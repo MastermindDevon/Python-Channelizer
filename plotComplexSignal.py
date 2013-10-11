@@ -11,7 +11,7 @@
 # -d decimFactor 	= decimation factor of FIR filter 										#
 # -l project_dir	= output destination for input signal (project directory) 				#
 #																							#
-# -m module 		= vhdl module to plot (Demod,FIRFilter,IIRFilter)						#
+# -m module 		= vhdl module to plot (Demod,FIRFilter,IIRFilter,MUL)						#
 # ----------------------------------------------------------------------------------------- #
 
 
