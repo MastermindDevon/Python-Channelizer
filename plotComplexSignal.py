@@ -11,7 +11,7 @@
 # -d decimFactor 	= decimation factor of FIR filter 										#
 # -l project_dir	= output destination for input signal (project directory) 				#
 #																							#
-# -m module 		= vhdl module to plot (Demod,FIRFilter,IIRFilter,MUL)						#
+# -m module 		= vhdl module to plot (Demod,FIRFilter,IIRFilter)						#
 # ----------------------------------------------------------------------------------------- #
 
 
@@ -56,7 +56,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 	cosoutput=np.genfromtxt(str(project_dir)+'/cosoutput'+str(int(inputFreq))+'MHz.dat',dtype=np.int32)
 	# cosoutputIm=np.genfromtxt(str(project_dir)+'/cosoutputIm'+str(int(inputFreq))+'MHz.dat',dtype=np.int32)
 	# cosoutput=cosoutputRe + 1j * cosoutputIm
-	cosTpts=np.arange(0,len(cosoutput)*timeStep,timeStep)
+	cosTpts=timeStep*np.arange(0,len(cosoutput))
 
 	# plot demodulator signals:
 	if (module=='Demod'):
@@ -71,7 +71,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		# compute frequency domain signals:
 		if(options=='fpga'):
 			demodPhasor=np.genfromtxt(str(project_dir)+'/fpgaDemod'+str(int(inputFreq))+'MHz.dat',np.int32)
-			demodTpts=np.arange(0,len(demodData)*timeStep,timeStep)
+			demodTpts=np.arange(0,len(demodPhasor)*timeStep,timeStep)
 			print 'Demodulator values from {}...'.format(options)
 		else: 
 			demodPhasor=demodDataRe + 1j * demodDataIm
@@ -88,7 +88,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		# time domain signals:
 		plt.subplot(3,1,1)
 		plt.title('Real Output from Multiplier')
-		plt.plot(demodTpts,demodDataRe*pow(2,-19))
+		plt.plot(demodTpts,np.real(demodPhasor)*pow(2,-19))
 		plt.xlabel('Time (s)')
 		plt.ylabel('Magnitude')
 
@@ -96,7 +96,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		plt.title('Imag Output from Multiplier')
 		plt.xlabel('Time (s)')
 		plt.ylabel('Magnitude [Im]')
-		plt.plot(demodTpts,demodDataIm*pow(2,-19))
+		plt.plot(demodTpts,np.imag(demodPhasor)*pow(2,-19))
 
 		# frequency domain signals:
 		plt.subplot(3,1,3)
