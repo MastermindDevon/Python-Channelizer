@@ -8,19 +8,17 @@
 # command line Arguments:
 # ----------------------------------------------------------------------------------------- #
 # 																							#
-# -o options 		= fgpa/isim 			 												#
-# 																							#
-# -p project_dir	= output destination for input signal (project directory) 				#
+# -p project_dir	= path to top level module 								 				#
 # -t top_level_file = file name of top level module											#
-#																							#
-#																							#
-# -m module 		= vhdl module to plot (Demod,FIRFilter,IIRFilter)						#
+# -m module 		= vhdl module to select 												#
+# -s signals 		= list of signals from module											#
+# 																							#
 # ----------------------------------------------------------------------------------------- #
 
 
 # --------------------------------Example Commandline--------------------------------------------------- #
 #																								 		 #
-#	./testbenchGen -p ~/project_dir -t my_top.vhd									 					 # 
+#	./testbenchGen -p ~/project_dir -t my_top.vhd -m my_module.vhd -s [sig1,sig2,sigN]	 				 # 
 #																								 		 #
 # --------------------------------Example Commandline--------------------------------------------------- #
 
@@ -43,8 +41,9 @@ import re as regex
 # 			Select Module to Evaluate				#
 # ------------------------------------------------- #
 
-def select_modules(top_level_file,module_select):
-	with open(str(top_level_file),'r') as fid:
+def select_modules(project_dir,top_level_file,module_select):
+	project_dir=regex.sub('\/$','',project_dir)
+	with open(str(project_dir)+'/'+str(top_level_file),'r') as fid:
 		top_level = fid.read()
 	
 	top_module = regex.sub('\.vhd','',top_level_file)
@@ -102,7 +101,7 @@ def select_modules(top_level_file,module_select):
 
 	return inputs_zip,outputs_zip
 
-ins,outs = select_modules('polyDecimDemodFilter2_top.vhd','digitalDemodTest_top')
+
 
 
 # ------------------------------------------------- #
@@ -117,4 +116,22 @@ def select_signals(inputs,outputs,signal_select):
 
 	print 'Selected signal: {}'.format(selected_sig)
 
-select_signals(ins,outs,'inputSignalData')
+
+
+
+def main(argv):
+   parser=argparse.ArgumentParser(description='Manage VHDL Verification and Plotting')
+   # commandline args, for usage type '-h'
+   parser.add_argument('-m','--module_select',dest='module_select',type=str,help='module to select for simulation')
+   parser.add_argument('-p','--project_dir',dest='project_dir',type=str,help='project file path')
+   parser.add_argument('-t','--top_level_file',dest='top_level_file',type=str,help='top level file name')
+   parser.add_argument('-s','--signals',dest='signals',type=str,help='selected signals')
+
+   args = parser.parse_args()
+
+   ins,outs = select_modules(args.project_dir,args.top_level_file,args.module_select)
+   select_signals(ins,outs,arg.signals)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+
