@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# script that adds all new to master
+# quick script to update git and include comment
+
+# $1 = comment for code
+
+echo -e "\nUpdating git repository..."
+git add *
+git commit -m "${1}"
+
+git push origin master
+
+
