@@ -98,12 +98,12 @@ def init_fpga(inputFreq,samplingFreq,decimFactor,numPoints,project_dir,options,w
 	# write input signals out to board:
 	print 'Generating input signals'
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-	subprocess.check_call(["/home/nick/dualPortblockRAMdemod_top/makeCosWave.py","-c",str(inputFreq/1e06),"-s",str(samplingFreq),"-d",str(decimFactor),"-n",str(int(numPoints*2)),"-p",str(project_dir),"-r","1e05","-z","yes","-g","no"])
+	subprocess.check_call(["makeCosWave.py","-c",str(inputFreq/1e06),"-s",str(samplingFreq),"-d",str(decimFactor),"-n",str(int(numPoints*2)),"-p",str(project_dir),"-r","1e05","-z","yes","-g","no"])
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'
 
 	print '\nGenerating '+str(window)+' window coefficients'
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-	subprocess.check_call(["/home/nick/dualPortblockRAMdemod_top/generateWindowCoefs.py","-l",str(int(numPoints)),"-n",str(int(numPoints*2)),"-p",str(project_dir),"-w",str(window)])
+	subprocess.check_call(["generateWindowCoefs.py","-l",str(int(numPoints)),"-n",str(int(numPoints*2)),"-p",str(project_dir),"-w",str(window)])
 	print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'
 
 	inputSignal=np.genfromtxt(str(project_dir)+'/fpgaData'+str(int(numPoints*2))+'.txt',dtype=np.int16)
@@ -183,7 +183,7 @@ def init_fpga(inputFreq,samplingFreq,decimFactor,numPoints,project_dir,options,w
 		print 'Plotting Arguments Selected:\n\ninputFreq: {} MHz\nsamplingFreq: {} MHz\ndecimFactor: {} \nproject_dir: {}\nmodule: {}'.format(inputFreq/1e06,samplingFreq/1e06,decimFactor,project_dir,module)
 		print '\n-------------------------------------\n'
 		
-		subprocess.check_call(["/home/nick/dualPortblockRAMdemod_top/plotComplexSignal.py","-i",str(inputFreq),"-s",str(samplingFreq),"-d",str(decimFactor),"-p",str(project_dir),"-m",str(module)])
+		subprocess.check_call(["plotComplexSignal.py","-i",str(inputFreq),"-s",str(samplingFreq),"-d",str(decimFactor),"-p",str(project_dir),"-m",str(module)])
 	# ------------------------------------------------------------------------------ #
 
 	xem.ResetFPGA()

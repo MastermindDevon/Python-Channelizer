@@ -55,19 +55,28 @@ def select_modules(project_dir,top_level_file,module_select):
 	print 'Opening {} from top level code...'.format(module_select)
 
 	mod_indx = module_files.index(str(module_select)+'.vhd')
-	with open(str(module_files[mod_indx]),'r') as fid:
+	with open(str(project_dir)+'/'+str(module_files[mod_indx]),'r') as fid:
 		file_selected = fid.read()  
 
 	# ------------------------------------------------- #
 	# 			Extract Input signals 					#
 	# ------------------------------------------------- #
 	match_ins = regex.compile('.*\: in\s.*')
+	match_inwidths = regex.compile('.*[0-9].*\;$')
+	
 	inputs = match_ins.findall(file_selected)
+	in_widths = [inn for inn in match_inwidths.findall(file_selected)]
+
+
+	print in_widths
+
 	inputs = [regex.sub('\-\-.*','',inn) for inn in inputs]
 	inputs = [regex.sub('\t','',inn) for inn in inputs]
 
-	in_types = [regex.sub('.*\: in','',inn) for inn in inputs]
+	in_widths = [regex.sub('downto.*','',inn) for inn in in_widths]
+	in_widths = [regex.sub('^(','',inn) for inn in in_widths]
 
+	in_types = [regex.sub('.*\: in','',inn) for inn in inputs]
 	in_types = [regex.sub('\;','',it) for it in in_types]
 
 	inputs = [regex.sub('\:.*','',inn) for inn in inputs]	
@@ -109,12 +118,31 @@ def select_modules(project_dir,top_level_file,module_select):
 # ------------------------------------------------- #
 
 def select_signals(inputs,outputs,signal_select):
-	signals = [inp[0] for inp in inputs]
-	types = [tp[1] for tp in inputs]
+	signals = [out[0] for out in outputs]
+	types = [out[1] for out in outputs]
 	sig_indx = signals.index(signal_select)
 	selected_sig = signals[sig_indx]
 
 	print 'Selected signal: {}'.format(selected_sig)
+	testbench_file = raw_input("Enter testbench file name to insert file writer for signal: ")
+
+	# file writer code:
+	
+	"""output_file"""+str(selected_sig)+""" : entity work.file_writer 
+  	generic map( 
+    dataWidth => """+str(signal_width)+""",
+    wordWidth => 1,
+    -- dataFrac => 10,
+    fileName => " """+str([project_dir])+"""/data"""+str(selected_sig)+"""output.dat"
+  	)
+  	port map( 
+    	reset => rst,
+    	clk => clk,
+    	enable => rst,
+    	data => """+str(selected_sig)+""",
+    	data_valid => rst
+  	);
+	"""
 
 
 
@@ -130,7 +158,7 @@ def main(argv):
    args = parser.parse_args()
 
    ins,outs = select_modules(args.project_dir,args.top_level_file,args.module_select)
-   select_signals(ins,outs,arg.signals)
+   select_signals(ins,outs,args.signals)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

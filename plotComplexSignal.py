@@ -175,35 +175,24 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		mulDataIm=np.genfromtxt(str(project_dir)+'/data'+str(module)+'Imoutput'+str(int(inputFreq))+'MHz.dat',dtype=np.int64)
 		mulTpts=timeStep*np.arange(0,len(mulDataRe))
 
-		window=np.genfromtxt(str(project_dir)+'/data'+str(module)+'windowoutput'+str(int(inputFreq))+'MHz.dat',dtype=np.int32)
-		windowTpts=timeStep*np.arange(0,len(window))
-
-		print 'Window length: {} signal length: {}'.format(len(window),len(mulTpts))
-
 		title='Project: '+str(project_dir_stripped)
 		fig000=plt.figure(1)
 		fig000.suptitle(str(title))
 
-		plt.subplot(4,1,1)
+		plt.subplot(3,1,1)
 		plt.title(str(inputFreq)+' MHz Input Cosine Wave')
 		plt.plot(cosTpts,np.real(cosoutput)*pow(2,-17))
 		plt.xlabel('Time (s)')
 		plt.ylabel('Magnitude')
 
-		plt.subplot(4,1,2)
-		plt.title('Window Function')
-		plt.plot(windowTpts,window*pow(2,-15))
-		plt.xlabel('Time (s)')
-		plt.ylabel('Magnitude')
-
-		plt.subplot(4,1,3)
+		plt.subplot(3,1,2)
 		plt.title('Real Output from Multiplier')
 		plt.plot(mulTpts,mulDataRe*pow(2,-28))
 		plt.xlabel('Time (s)')
 		plt.ylabel('Magnitude')
 
 		# plot the output and cooresponding fit
-		plt.subplot(4,1,4)
+		plt.subplot(3,1,3)
 		plt.title('Imag Output from Multiplier')
 		plt.xlabel('Time (s)')
 		plt.ylabel('Magnitude')
