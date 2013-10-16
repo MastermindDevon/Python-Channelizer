@@ -12,6 +12,7 @@
 # -t top_level_file = file name of top level module											#
 # -m module 		= vhdl module to select 												#
 # -s signals 		= list of signals from module											#
+# -b testbench 		= testbench file name													#
 # 																							#
 # ----------------------------------------------------------------------------------------- #
 
@@ -62,19 +63,11 @@ def select_modules(project_dir,top_level_file,module_select):
 	# 			Extract Input signals 					#
 	# ------------------------------------------------- #
 	match_ins = regex.compile('.*\: in\s.*')
-	match_inwidths = regex.compile('.*[0-9].*\;$')
 	
 	inputs = match_ins.findall(file_selected)
-	in_widths = [inn for inn in match_inwidths.findall(file_selected)]
-
-
-	print in_widths
-
+	
 	inputs = [regex.sub('\-\-.*','',inn) for inn in inputs]
 	inputs = [regex.sub('\t','',inn) for inn in inputs]
-
-	in_widths = [regex.sub('downto.*','',inn) for inn in in_widths]
-	in_widths = [regex.sub('^(','',inn) for inn in in_widths]
 
 	in_types = [regex.sub('.*\: in','',inn) for inn in inputs]
 	in_types = [regex.sub('\;','',it) for it in in_types]
@@ -111,38 +104,96 @@ def select_modules(project_dir,top_level_file,module_select):
 	return inputs_zip,outputs_zip
 
 
-
-
 # ------------------------------------------------- #
 # 			Select Signals to output				#
 # ------------------------------------------------- #
 
-def select_signals(inputs,outputs,signal_select):
+def select_signals(inputs,outputs,signal_select,project_dir,testbench):
+	with open(str(testbench),'r') as fid:
+		testbench_file = fid.read()
+
+	match_clk_proc = regex.compile('clk\_process.*')
+	clk_proc = match_clk_proc.findall(testbench_file)
+
+	print clk_proc
+
 	signals = [out[0] for out in outputs]
 	types = [out[1] for out in outputs]
 	sig_indx = signals.index(signal_select)
 	selected_sig = signals[sig_indx]
 
+	match_inwidths = regex.compile('([0-9]+.*)')
+	match_outwidths = regex.compile('([0-9]+.*)')
+
+	in_widths = [str(match_inwidths.findall(inputs[i][1])) for i in range(len(inputs))]
+
+	in_widths = [regex.sub('downto.*','',inn) for inn in in_widths]
+	in_widths = [regex.sub('\s$','',inn) for inn in in_widths]
+	in_widths = [regex.sub('\'','',inn) for inn in in_widths]
+	in_widths = [regex.sub('\[','',inn) for inn in in_widths]
+	in_widths = [regex.sub('\]','',inn) for inn in in_widths]
+	in_widths = [int(inn) if inn !='' else int(1) for inn in in_widths]
+
+	out_widths = [str(match_outwidths.findall(outputs[i][1])) for i in range(len(outputs))]
+
+	out_widths = [regex.sub('downto.*','',out) for out in out_widths]
+	out_widths = [regex.sub('\s$','',out) for out in out_widths]
+	out_widths = [regex.sub('\'','',out) for out in out_widths]
+	out_widths = [regex.sub('\[','',out) for out in out_widths]
+	out_widths = [regex.sub('\]','',out) for out in out_widths]
+	out_widths = [int(outs) if outs !='' else int(1) for outs in out_widths]
+
 	print 'Selected signal: {}'.format(selected_sig)
-	testbench_file = raw_input("Enter testbench file name to insert file writer for signal: ")
+
 
 	# file writer code:
-	
-	"""output_file"""+str(selected_sig)+""" : entity work.file_writer 
-  	generic map( 
-    dataWidth => """+str(signal_width)+""",
-    wordWidth => 1,
-    -- dataFrac => 10,
-    fileName => " """+str([project_dir])+"""/data"""+str(selected_sig)+"""output.dat"
-  	)
-  	port map( 
-    	reset => rst,
-    	clk => clk,
-    	enable => rst,
-    	data => """+str(selected_sig)+""",
-    	data_valid => rst
-  	);
-	"""
+
+	print 'Writing file writer code to testbench file: {}'.format(testbench)
+
+	print """\n-- -----------------------------------------------------------------------------------	
+-- \tFile Writer Block										
+-- -----------------------------------------------------------------------------------\n"""
+
+	for i in range(len(signals)):
+		print """output_file_"""+str(signals[i])+""" : entity work.file_writer 							  	
+   generic map(																			  	
+     dataWidth => """+str(out_widths[i])+""",													  	
+     wordWidth => 1,																																				
+     fileName => \""""+project_dir+"""/data"""+str(signals[i])+"""output.dat"			
+   )																							
+   port map( 																					
+     reset => rst,																			
+     clk => clk,																				
+     enable => rst,																			
+     data => """+str(signals[i])+""",														
+     data_valid => rst																		
+   );\n"""
+
+	print """\n-- ----------------------------------------------------------------------------------- 	
+-- \tEnd of File Writer Block										
+-- -----------------------------------------------------------------------------------\n"""
+
+	with open(str(testbench),'w') as fid:
+		fid.write("""\n-- -----------------------------------------------------------------------------------	
+-- \tFile Writer Block										
+-- -----------------------------------------------------------------------------------\n""")
+		for i in range(len(signals)):
+			fid.write("""output_file_"""+str(signals[i])+""" : entity work.file_writer 							  	
+	   generic map(																			  	
+	     dataWidth => """+str(out_widths[i])+""",													  	
+	     wordWidth => 1,																																				
+	     fileName => \""""+project_dir+"""/data"""+str(signals[i])+"""output.dat"			
+	   )																							
+	   port map( 																					
+	     reset => rst,																			
+	     clk => clk,																				
+	     enable => rst,																			
+	     data => """+str(signals[i])+""",														
+	     data_valid => rst																		
+	   );\n""")
+   		fid.write("""\n-- ----------------------------------------------------------------------------------- 	
+-- \tEnd of File Writer Block										
+-- -----------------------------------------------------------------------------------\n""")		
 
 
 
@@ -154,11 +205,12 @@ def main(argv):
    parser.add_argument('-p','--project_dir',dest='project_dir',type=str,help='project file path')
    parser.add_argument('-t','--top_level_file',dest='top_level_file',type=str,help='top level file name')
    parser.add_argument('-s','--signals',dest='signals',type=str,help='selected signals')
+   parser.add_argument('-b','--testbench',dest='testbench',type=str,help='testbench file name')
 
    args = parser.parse_args()
 
    ins,outs = select_modules(args.project_dir,args.top_level_file,args.module_select)
-   select_signals(ins,outs,args.signals)
+   select_signals(ins,outs,args.signals,args.project_dir,args.testbench)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
