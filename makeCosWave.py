@@ -69,7 +69,7 @@ def make_cos_wave(cosFreq, samplingFreq, numPoints, decimFactor, file_path, reso
 	phaseInc = int(np.floor((cosFreq/(samplingFreq/decimFactor))*pow(2,16)))
 
 	# specify total bits and fractional bits for fixed point input:
-	n_bits = 20
+	n_bits = 16
 	n_frac_bits = 15
 
 	paddingFrac=4
@@ -83,8 +83,8 @@ def make_cos_wave(cosFreq, samplingFreq, numPoints, decimFactor, file_path, reso
 
 	# Write out hex file for VHDL
 	# intCosData = np.uint16(cosData*(pow(2,n_bits-1)-1))
-	intCosData = np.uint32(cosData*(pow(2,n_bits-1)-1))
-	intSinData = np.uint32(sinData*(pow(2,n_bits-1)-1))
+	intCosData = np.uint16(cosData*(pow(2,n_bits-1)-1))
+	intSinData = np.uint16(sinData*(pow(2,n_bits-1)-1))
 	fixedData = [intToFixedPoint(int(i),n_bits,n_frac_bits) for i in intCosData]
 	
 	# pad data with zeros for pulse input
@@ -115,7 +115,7 @@ def make_cos_wave(cosFreq, samplingFreq, numPoints, decimFactor, file_path, reso
 	# 16-bit unsigned integer representation, current default:
 	with open(str(file_path)+'/iSimData'+str(numPoints)+'.txt','w') as FID:
 		FID.write('signal myCosine : input_array :=(')
-		FID.write(','.join(['x"{0:010X}"'.format(int(x)) for x in intCosData])+');')
+		FID.write(','.join(['x"{0:04X}"'.format(int(x)) for x in intCosData])+');')
 
 	# 16-bit unsigned integer representation, current default, opal kelly data:
 	with open(str(file_path)+'/fpgaData'+str(numPoints)+'.txt','w') as FID:

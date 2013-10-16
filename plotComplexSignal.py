@@ -71,11 +71,11 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		# compute frequency domain signals:
 		if(options=='fpga'):
 			demodPhasor=np.genfromtxt(str(project_dir)+'/fpgaDemod'+str(int(inputFreq))+'MHz.dat',np.int32)
-			demodTpts=np.arange(0,len(demodPhasor)*timeStep,timeStep)
+			demodTpts=timeStep*np.arange(0,len(demodPhasor))
 			print 'Demodulator values from {}...'.format(options)
 		else: 
 			demodPhasor=demodDataRe + 1j * demodDataIm
-			inTpts=np.arange(0,len(inData)*1/100e06,1/100e06)
+			inTpts=timeStep*np.arange(0,len(inData))
 			demodTpts=timeStep*np.arange(0,len(demodDataRe))
 		
 		demodfft=np.fft.fft(demodPhasor)
@@ -118,7 +118,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		iirPhasor = iirDataRe + 1j * iirDataIm
 
 		inTpts=timeStep*np.arange(0,len(inData))
-		iirtpts=np.arange(0,len(iirPhasor)*1/100e06,1/100e06)
+		iirtpts=timeStep*np.arange(0,len(iirPhasor))
 
 		iirPhasor=[ir*pow(2,-14) for ir in iirPhasor]
 
@@ -151,8 +151,8 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 		else:
 			FIRData=np.genfromtxt(str(project_dir)+'/dataFrom'+str(module)+'output'+str(int(inputFreq))+'MHz.dat',dtype=np.int32)
 
-		inTpts=np.arange(0,len(inData)*1/100e06,1/100e06)
-		FIRtpts=np.arange(0,len(FIRData)*1/100e06,1/100e06)
+		inTpts=timeStep*np.arange(0,len(inData))
+		FIRtpts=timeStep*np.arange(0,len(FIRData))
 
 		inData=[(co*pow(2,-15)) for co in inData]
 		FIRData=[ir*pow(2,-15) for ir in FIRData]
