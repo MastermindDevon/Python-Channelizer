@@ -1,0 +1,64 @@
+
+-- -----------------------------------------------------------------------------------	
+-- 	File Writer Block										
+-- -----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------
+-- 	digitalDemodTest_top
+-- ----------------------------------------------------------
+output_file_tValidOut_NCO : entity work.file_writer 							  	
+	   generic map(																			  	
+	     dataWidth => 1,													  	
+	     wordWidth => 1,																																				
+	     fileName => "/home/nick/polyDecimDemodFilter2/datatValidOut_NCOoutput.dat"			
+	   )																							
+	   port map( 																					
+	     reset => rst,																			
+	     clk => clk,																				
+	     enable => rst,																			
+	     data => tValidOut_NCO,														
+	     data_valid => rst																		
+	   );
+output_file_tValidOut : entity work.file_writer 							  	
+	   generic map(																			  	
+	     dataWidth => 1,													  	
+	     wordWidth => 1,																																				
+	     fileName => "/home/nick/polyDecimDemodFilter2/datatValidOutoutput.dat"			
+	   )																							
+	   port map( 																					
+	     reset => rst,																			
+	     clk => clk,																				
+	     enable => rst,																			
+	     data => tValidOut,														
+	     data_valid => rst																		
+	   );
+output_file_outputDemodRe : entity work.file_writer 							  	
+	   generic map(																			  	
+	     dataWidth => 35,													  	
+	     wordWidth => 1,																																				
+	     fileName => "/home/nick/polyDecimDemodFilter2/dataoutputDemodReoutput.dat"			
+	   )																							
+	   port map( 																					
+	     reset => rst,																			
+	     clk => clk,																				
+	     enable => rst,																			
+	     data => outputDemodRe,														
+	     data_valid => rst																		
+	   );
+output_file_outputDemodIm : entity work.file_writer 							  	
+	   generic map(																			  	
+	     dataWidth => 35,													  	
+	     wordWidth => 1,																																				
+	     fileName => "/home/nick/polyDecimDemodFilter2/dataoutputDemodImoutput.dat"			
+	   )																							
+	   port map( 																					
+	     reset => rst,																			
+	     clk => clk,																				
+	     enable => rst,																			
+	     data => outputDemodIm,														
+	     data_valid => rst																		
+	   );
+
+-- ----------------------------------------------------------------------------------- 	
+-- 	End of File Writer Block										
+-- -----------------------------------------------------------------------------------

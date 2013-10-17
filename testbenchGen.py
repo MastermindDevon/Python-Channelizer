@@ -108,14 +108,9 @@ def select_modules(project_dir,top_level_file,module_select):
 # 			Select Signals to output				#
 # ------------------------------------------------- #
 
-def select_signals(inputs,outputs,signal_select,project_dir,testbench):
+def select_signals(inputs,outputs,module_select,signal_select,project_dir,testbench):
 	with open(str(testbench),'r') as fid:
 		testbench_file = fid.read()
-
-	match_clk_proc = regex.compile('clk\_process.*')
-	clk_proc = match_clk_proc.findall(testbench_file)
-
-	print clk_proc
 
 	signals = [out[0] for out in outputs]
 	types = [out[1] for out in outputs]
@@ -145,8 +140,28 @@ def select_signals(inputs,outputs,signal_select,project_dir,testbench):
 
 	print 'Selected signal: {}'.format(selected_sig)
 
+	return signals,in_widths,out_widths
 
-	# file writer code:
+# ------------------------------------------------- #
+# 			Insert file writers in testbench		#
+# ------------------------------------------------- #
+
+def file_writer_to_tb(signals,in_widths,out_widths,module_select,project_dir,testbench):
+	# load file into memory:
+	with open(str(testbench),'r') as fid:
+		testbench_file = fid.read()
+
+	print 'Removing old file writers...'
+
+	testbench_file = regex.sub('end process;''[\S\s]*End of File Writer Block\t\t\t\t\t\t\t\t\t\t\n-- -----------------------------------------------------------------------------------\n','end process;',str(testbench_file))
+
+	# find clock process:
+	match_clk_proc = regex.compile('clk_process.*')
+	print 'Matched Clocks: {}'.format(match_clk_proc.findall(testbench))
+
+	clk_split = regex.split('(end process\;)',testbench_file)
+
+	clk_split_indx = clk_split.index('end process;')
 
 	print 'Writing file writer code to testbench file: {}'.format(testbench)
 
@@ -173,10 +188,13 @@ def select_signals(inputs,outputs,signal_select,project_dir,testbench):
 -- \tEnd of File Writer Block										
 -- -----------------------------------------------------------------------------------\n"""
 
-	with open(str(testbench),'w') as fid:
+	with open('fileWriters_tmp','w') as fid:
 		fid.write("""\n-- -----------------------------------------------------------------------------------	
 -- \tFile Writer Block										
 -- -----------------------------------------------------------------------------------\n""")
+		fid.write("""\n-- ----------------------------------------------------------
+-- \t"""+str(module_select)+
+"""\n-- ----------------------------------------------------------\n""")
 		for i in range(len(signals)):
 			fid.write("""output_file_"""+str(signals[i])+""" : entity work.file_writer 							  	
 	   generic map(																			  	
@@ -195,6 +213,15 @@ def select_signals(inputs,outputs,signal_select,project_dir,testbench):
 -- \tEnd of File Writer Block										
 -- -----------------------------------------------------------------------------------\n""")		
 
+   	with open ('fileWriters_tmp','rb') as fid:
+   		fileWriterText = fid.read()
+
+   	clk_split.insert(clk_split_indx+1,str(fileWriterText))
+
+   	print 'Finished Writing fileWriters to {}'.format(testbench)
+
+   	with open(str(testbench),'w') as fid:
+   		fid.write(''.join([str(i) for i in clk_split]))
 
 
 
@@ -209,8 +236,13 @@ def main(argv):
 
    args = parser.parse_args()
 
+   # obtain signal information (name,type,bit-width):
    ins,outs = select_modules(args.project_dir,args.top_level_file,args.module_select)
-   select_signals(ins,outs,args.signals,args.project_dir,args.testbench)
+   sigs,in_widths,out_widths = select_signals(ins,outs,args.module_select,args.signals,args.project_dir,args.testbench)
+
+   # parse testbench to insert filewriter in testbench:
+   file_writer_to_tb(sigs,in_widths,out_widths,args.module_select,args.project_dir,args.testbench)
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
