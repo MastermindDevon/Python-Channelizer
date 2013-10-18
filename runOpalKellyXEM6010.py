@@ -140,7 +140,7 @@ def init_fpga(inputSignal,windowCoef,inputFreq,samplingFreq,decimFactor,numPoint
 	xem.UpdateWireIns()
 
 	print 'Wait 13 mirco seconds for RAM to fill...'
-	time.sleep(13e-03)
+	time.sleep(13)
 
 	print 'Read results from accumulator...\n\n'
 	for i in range(int(numPoints)):
@@ -149,7 +149,7 @@ def init_fpga(inputSignal,windowCoef,inputFreq,samplingFreq,decimFactor,numPoint
 		xem.UpdateWireOuts()
 		outputRe[i]=(xem.GetWireOutValue(0x20)<<64) | (xem.GetWireOutValue(0x21)<<32) | (xem.GetWireOutValue(0x22)<<16) | (xem.GetWireOutValue(0x23))
 		outputIm[i]=(xem.GetWireOutValue(0x24)<<64) | (xem.GetWireOutValue(0x25)<<32) | (xem.GetWireOutValue(0x26)<<16) | (xem.GetWireOutValue(0x27))
-		# print '[ [0x{0:04X}], [0x{0:04X}], [0x{0:04X}], [0x{0:04X}]\t[0x{0:04X}], [0x{0:04X}], [0x{0:04X}], [0x{0:04X}] ]:\t[0x{0:016X}\t0x{0:016X}]'.format(xem.GetWireOutValue(0x20),
+		print '[ [0x{0:04X}], [0x{0:04X}], [0x{0:04X}], [0x{0:04X}]\t[0x{0:04X}], [0x{0:04X}], [0x{0:04X}], [0x{0:04X}] ]:\t[0x{0:016X}\t0x{0:016X}]'.format(xem.GetWireOutValue(0x20),
 		xem.GetWireOutValue(0x21),xem.GetWireOutValue(0x22),xem.GetWireOutValue(0x23),
 		xem.GetWireOutValue(0x24),xem.GetWireOutValue(0x25),xem.GetWireOutValue(0x26),xem.GetWireOutValue(0x27),outputRe[i],outputIm[i])
 

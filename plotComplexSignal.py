@@ -212,6 +212,7 @@ def plot_complex_signal(inputFreq,samplingFreq,decimFactor,project_dir,module,op
 
 	if(options=='fpga'):
 		print 'Reading {} results from file...'.format(options)
+		print 'Using data from {}'.format(options)
 		outputDataRe=np.genfromtxt(str(project_dir)+'/fpgaOutputRe'+str(int(inputFreq))+'MHz.dat',dtype=np.int64)
 		outputDataIm=np.genfromtxt(str(project_dir)+'/fpgaOutputIm'+str(int(inputFreq))+'MHz.dat',dtype=np.int64)
 	else:
