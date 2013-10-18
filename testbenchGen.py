@@ -224,7 +224,6 @@ def file_writer_to_tb(signals,in_widths,out_widths,module_select,project_dir,tes
    		fid.write(''.join([str(i) for i in clk_split]))
 
 
-
 def main(argv):
    parser=argparse.ArgumentParser(description='Manage VHDL Verification and Plotting')
    # commandline args, for usage type '-h'
